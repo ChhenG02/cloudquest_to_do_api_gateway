@@ -43,4 +43,12 @@ export class TasksController {
   getAssignees(@Param('id') id: string, @Req() req) {
     return this.proxy.forward(req, `http://task-service:3003/tasks/${id}/assignees`);
   }
+
+   @Patch("board/:boardId/reorder")
+  reorder(@Param("boardId") boardId: string, @Req() req) {
+    return this.proxy.forward(
+      req,
+      `http://task-service:3003/tasks/board/${boardId}/reorder`
+    );
+  }
 }
