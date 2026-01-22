@@ -3,52 +3,59 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Req,
   UseGuards,
-} from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt.guard';
-import { ProxyService } from '../proxy/proxy.service';
+} from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt.guard";
+import { ProxyService } from "../proxy/proxy.service";
 
-@Controller('tasks')
+@Controller("tasks")
 @UseGuards(JwtAuthGuard)
 export class TasksController {
   constructor(private proxy: ProxyService) {}
 
   @Post()
   createTask(@Req() req) {
-    return this.proxy.forward(req, 'http://task-service:3003/tasks');
+    return this.proxy.forward(req, "http://task-service:3003/tasks");
   }
 
-  // ✅ GET tasks by board
-  @Get('board/:boardId')
-  getByBoard(@Param('boardId') boardId: string, @Req() req) {
-    return this.proxy.forward(req, `http://task-service:3003/tasks/board/${boardId}`);
+  @Get("board/:boardId")
+  getByBoard(@Param("boardId") boardId: string, @Req() req) {
+    return this.proxy.forward(
+      req,
+      `http://task-service:3003/tasks/board/${boardId}`,
+    );
   }
 
-  // ✅ update status
-  @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Req() req) {
+  @Get(":id")
+  getDetail(@Param("id") id: string, @Req() req) {
+    return this.proxy.forward(req, `http://task-service:3003/tasks/${id}`);
+  }
+
+  @Patch(":id/status")
+  updateStatus(@Param("id") id: string, @Req() req) {
     return this.proxy.forward(req, `http://task-service:3003/tasks/${id}/status`);
   }
 
-  // ✅ assign users
-  @Patch(':id/assign')
-  assign(@Param('id') id: string, @Req() req) {
+  @Patch(":id")
+  updateTask(@Param("id") id: string, @Req() req) {
+    return this.proxy.forward(req, `http://task-service:3003/tasks/${id}`);
+  }
+
+  @Delete(":id")
+  deleteTask(@Param("id") id: string, @Req() req) {
+    return this.proxy.forward(req, `http://task-service:3003/tasks/${id}`);
+  }
+
+  @Patch(":id/assign")
+  assign(@Param("id") id: string, @Req() req) {
     return this.proxy.forward(req, `http://task-service:3003/tasks/${id}/assign`);
   }
 
-  // ✅ get assignees
-  @Get(':id/assignees')
-  getAssignees(@Param('id') id: string, @Req() req) {
+  @Get(":id/assignees")
+  getAssignees(@Param("id") id: string, @Req() req) {
     return this.proxy.forward(req, `http://task-service:3003/tasks/${id}/assignees`);
-  }
-
-   @Patch("board/:boardId/reorder")
-  reorder(@Param("boardId") boardId: string, @Req() req) {
-    return this.proxy.forward(
-      req,
-      `http://task-service:3003/tasks/board/${boardId}/reorder`
-    );
   }
 }
