@@ -44,19 +44,59 @@ export class BoardsController {
   @Post(':id/share')
   shareBoard(@Param('id') id: string, @Req() req) {
     this.attachUserIdHeader(req);
-    return this.proxy.forward(req, `http://board-service:3002/boards/${id}/share`);
+    return this.proxy.forward(
+      req,
+      `http://board-service:3002/boards/${id}/share`,
+    );
   }
 
-  // ✅ NEW: update board (name)
-  @Patch(':id')
-  updateBoard(@Param('id') id: string, @Req() req) {
+  @Patch(':id/members/:memberUserId')
+  updateMemberRole(
+    @Param('id') id: string,
+    @Param('memberUserId') memberUserId: string,
+    @Req() req,
+  ) {
     this.attachUserIdHeader(req);
-    return this.proxy.forward(req, `http://board-service:3002/boards/${id}`);
+    return this.proxy.forward(
+      req,
+      `http://board-service:3002/boards/${id}/members/${memberUserId}`,
+    );
   }
 
   @Delete(':id')
   deleteBoard(@Param('id') id: string, @Req() req) {
     this.attachUserIdHeader(req);
     return this.proxy.forward(req, `http://board-service:3002/boards/${id}`);
+  }
+
+  @Get(':id/members')
+  getMembers(@Param('id') id: string, @Req() req) {
+    this.attachUserIdHeader(req);
+    return this.proxy.forward(
+      req,
+      `http://board-service:3002/boards/${id}/members`,
+    );
+  }
+
+  @Delete(':id/members/:memberUserId')
+  removeMember(
+    @Param('id') id: string,
+    @Param('memberUserId') memberUserId: string,
+    @Req() req,
+  ) {
+    this.attachUserIdHeader(req);
+    return this.proxy.forward(
+      req,
+      `http://board-service:3002/boards/${id}/members/${memberUserId}`,
+    );
+  }
+
+  @Get(':id/role')
+  getMyRole(@Param('id') id: string, @Req() req) {
+    this.attachUserIdHeader(req);
+    return this.proxy.forward(
+      req,
+      `http://board-service:3002/boards/${id}/role`,
+    );
   }
 }
