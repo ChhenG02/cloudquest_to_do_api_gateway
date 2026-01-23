@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { ProxyService } from '../proxy/proxy.service';
 
-@Controller('auth') 
+@Controller('auth')
 export class AuthController {
   constructor(private proxy: ProxyService) {}
 
@@ -10,7 +10,7 @@ export class AuthController {
     return this.proxy.forward(req, 'http://auth-service:3001/auth/signup');
   }
 
-  @Post('login') 
+  @Post('login')
   login(@Req() req) {
     return this.proxy.forward(req, 'http://auth-service:3001/auth/login');
   }
@@ -18,5 +18,18 @@ export class AuthController {
   @Get('checkauth')
   validate(@Req() req) {
     return this.proxy.forward(req, 'http://auth-service:3001/auth/checkauth');
+  }
+
+  @Get('users/search')
+  searchUsers(@Query('q') query: string, @Req() req) {
+    return this.proxy.forward(
+      req,
+      `http://auth-service:3001/auth/users/search?q=${encodeURIComponent(query || '')}`,
+    );
+  }
+
+  @Post('users/batch')
+  batchUsers(@Req() req) {
+    return this.proxy.forward(req, 'http://auth-service:3001/auth/users/batch');
   }
 }
