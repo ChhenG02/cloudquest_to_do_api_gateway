@@ -16,13 +16,20 @@ import { ProxyService } from '../proxy/proxy.service';
 export class TasksController {
   constructor(private proxy: ProxyService) {}
 
+  private attachUserIdHeader(req: any) {
+    const userId = req.user?.userId ?? req.user?.id ?? req.user?.sub;
+    if (userId) req.headers['x-user-id'] = String(userId);
+  }
+
   @Post()
-  createTask(@Req() req) {
+  createTask(@Req() req: any) {
+    this.attachUserIdHeader(req);
     return this.proxy.forward(req, 'http://task-service:3003/tasks');
   }
 
   @Get('board/:boardId')
-  getByBoard(@Param('boardId') boardId: string, @Req() req) {
+  getByBoard(@Param('boardId') boardId: string, @Req() req: any) {
+    this.attachUserIdHeader(req);
     return this.proxy.forward(
       req,
       `http://task-service:3003/tasks/board/${boardId}`,
@@ -30,12 +37,14 @@ export class TasksController {
   }
 
   @Get(':id')
-  getDetail(@Param('id') id: string, @Req() req) {
+  getDetail(@Param('id') id: string, @Req() req: any) {
+    this.attachUserIdHeader(req);
     return this.proxy.forward(req, `http://task-service:3003/tasks/${id}`);
   }
 
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Req() req) {
+  updateStatus(@Param('id') id: string, @Req() req: any) {
+    this.attachUserIdHeader(req);
     return this.proxy.forward(
       req,
       `http://task-service:3003/tasks/${id}/status`,
@@ -43,17 +52,22 @@ export class TasksController {
   }
 
   @Patch(':id')
-  updateTask(@Param('id') id: string, @Req() req) {
+  updateTask(@Param('id') id: string, @Req() req: any) {
+    this.attachUserIdHeader(req);
     return this.proxy.forward(req, `http://task-service:3003/tasks/${id}`);
   }
 
   @Delete(':id')
-  deleteTask(@Param('id') id: string, @Req() req) {
+  deleteTask(@Param('id') id: string, @Req() req: any) {
+    this.attachUserIdHeader(req);
     return this.proxy.forward(req, `http://task-service:3003/tasks/${id}`);
   }
 
+  // Optional: if you no longer use /assign, you can remove this endpoint.
+  // If you keep it, still attach header:
   @Patch(':id/assign')
-  assign(@Param('id') id: string, @Req() req) {
+  assign(@Param('id') id: string, @Req() req: any) {
+    this.attachUserIdHeader(req);
     return this.proxy.forward(
       req,
       `http://task-service:3003/tasks/${id}/assign`,
@@ -61,7 +75,17 @@ export class TasksController {
   }
 
   @Get(':id/assignees')
-  getAssignees(@Param('id') id: string, @Req() req) {
+  getAssignees(@Param('id') id: string, @Req() req: any) {
+    this.attachUserIdHeader(req);
+    return this.proxy.forward(
+      req,
+      `http://task-service:3003/tasks/${id}/assignees`,
+    );
+  }
+
+  @Patch(':id/assignees')
+  setAssignees(@Param('id') id: string, @Req() req: any) {
+    this.attachUserIdHeader(req);
     return this.proxy.forward(
       req,
       `http://task-service:3003/tasks/${id}/assignees`,
@@ -69,7 +93,8 @@ export class TasksController {
   }
 
   @Delete('board/:boardId')
-  deleteTasksByBoard(@Param('boardId') boardId: string, @Req() req) {
+  deleteTasksByBoard(@Param('boardId') boardId: string, @Req() req: any) {
+    this.attachUserIdHeader(req);
     return this.proxy.forward(
       req,
       `http://task-service:3003/tasks/board/${boardId}`,
