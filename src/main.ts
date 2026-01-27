@@ -1,29 +1,44 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create(AppModule);
 
-  const PORT = process.env.PORT || '3000';
-  const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
+  const PORT = Number(process.env.PORT) || 8000;
+  const CORS_ORIGIN =
+    process.env.CORS_ORIGIN ||
+    'http://ec2-44-192-61-145.compute-1.amazonaws.com:3000';
 
+  // ✅ Enable CORS
   app.enableCors({
-    origin: CORS_ORIGIN.split(','), 
-    credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Authorization, X-Requested-With',
+    origin: CORS_ORIGIN,
+    credentials: false,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
+  // ✅ IMPORTANT: handle OPTIONS before proxying
+  app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+      res.header('Access-Control-Allow-Origin', CORS_ORIGIN);
+      res.header(
+        'Access-Control-Allow-Methods',
+        'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+      );
+      res.header(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization',
+      );
+      return res.sendStatus(204);
+    }
+    next();
   });
 
   app.use(cookieParser());
-  app.useStaticAssets(join(__dirname, '..', 'public'));
 
-  await app.listen(Number(PORT), '0.0.0.0');
-
-  console.log(`Application running on port ${PORT}`);
-  console.log(`CORS enabled for: ${CORS_ORIGIN}`);
+  await app.listen(PORT, '0.0.0.0');
+  console.log(`✅ API Gateway running on ${PORT}`);
 }
 
 bootstrap();
