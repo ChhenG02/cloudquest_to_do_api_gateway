@@ -3,10 +3,16 @@ import axios from 'axios';
 
 @Injectable()
 export class AuthService {
+  private get authServiceUrl(): string {
+    return (
+      process.env.AUTH_SERVICE_URL || 'http://localhost:3001'
+    );
+  }
+
   async validateToken(token: string) {
     try {
       const res = await axios.get(
-        'http://auth-service:3001/auth/checkauth',
+        `${this.authServiceUrl}/auth/checkauth`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -15,10 +21,11 @@ export class AuthService {
       );
 
       return res.data;
-    } catch (err) {
-      // 👇 VERY IMPORTANT
-      if (err.response) {
-        throw new UnauthorizedException(err.response.data.message);
+    } catch (err: any) {
+      if (err?.response) {
+        throw new UnauthorizedException(
+          err.response.data?.message || 'Invalid token',
+        );
       }
       throw new UnauthorizedException('Auth service unreachable');
     }

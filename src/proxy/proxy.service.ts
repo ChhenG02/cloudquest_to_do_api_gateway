@@ -34,7 +34,6 @@ export class ProxyService {
         error.response?.data || error.message,
       );
 
-      // ✅ VERY IMPORTANT PART
       if (error.response) {
         throw new HttpException(
           error.response.data || {
