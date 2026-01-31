@@ -1,15 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+ const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
 
   const PORT = Number(process.env.PORT) || 8000;
   const CORS_ORIGIN =
     process.env.CORS_ORIGIN ||
     'http://ec2-44-192-61-145.compute-1.amazonaws.com:3000';
 
+      app.useStaticAssets(join(__dirname, '..', 'public'));
   // ✅ Enable CORS
   app.enableCors({
     origin: CORS_ORIGIN,
@@ -37,6 +41,9 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+
+
+  
   await app.listen(PORT, '0.0.0.0');
   console.log(`✅ API Gateway running on ${PORT}`);
 }
